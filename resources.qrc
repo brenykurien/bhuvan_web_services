@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/bhuvan_web_services" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
