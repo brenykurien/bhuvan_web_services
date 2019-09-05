@@ -57,92 +57,23 @@
     <rect>
      <x>41</x>
      <y>360</y>
-     <width>101</width>
+     <width>141</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Layer Name(s)</string>
+    <string>Selected layer name(s)</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="layer_name_box">
    <property name="geometry">
     <rect>
-     <x>151</x>
+     <x>181</x>
      <y>360</y>
-     <width>541</width>
+     <width>511</width>
      <height>22</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QLabel" name="image_encoding_label">
-   <property name="geometry">
-    <rect>
-     <x>41</x>
-     <y>280</y>
-     <width>141</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Image Encoding</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>39</x>
-     <y>300</y>
-     <width>391</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QRadioButton" name="png_rb">
-      <property name="text">
-       <string>PNG</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="png8_rb">
-      <property name="text">
-       <string>PNG8</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="jpeg_rb">
-      <property name="text">
-       <string>JPEG</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="tiff_rb">
-      <property name="text">
-       <string>TIFF</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="svg_rb">
-      <property name="text">
-       <string>SVG</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
   </widget>
   <widget class="QTableWidget" name="table_widget">
    <property name="geometry">
@@ -150,7 +81,7 @@
      <x>40</x>
      <y>50</y>
      <width>651</width>
-     <height>221</height>
+     <height>291</height>
     </rect>
    </property>
   </widget>

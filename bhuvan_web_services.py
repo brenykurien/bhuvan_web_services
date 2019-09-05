@@ -23,8 +23,8 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, pyqtSignal, QEvent
 from qgis.PyQt.QtGui import QIcon, QTextCursor
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView
-
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView, QProgressBar
+from qgis._core import QgsRasterLayer, QgsProject
 # Initialize Qt resources from file resources.py
 from .info_dialog import InfoDialog
 from .common.mappings.ServiceUrlMap import service_url_map
@@ -61,6 +61,8 @@ class BhuvanWebServices:
         self.dlg = BhuvanWebServicesDialog()
         self.dlginfo = InfoDialog()
         self.wms_contents = None
+        self.wms = None
+        self.service_url = None
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Bhuvan Web Services')
@@ -171,6 +173,7 @@ class BhuvanWebServices:
 
     def run(self, wms):
         if wms is not None:
+            self.wms = wms
             self.wms_contents = wms.contents
             self.fill_table(wms.contents)
             self.dlg.show()
@@ -242,27 +245,30 @@ class BhuvanWebServices:
 
     def loadServiceList(self, service_type_id: int):
         url = service_url_map[service_type_id]
-        wms = None
-        wmts = None
+        self.service_url = url
+        wms = wmts = None
         if service_type_id <= 3:
             try:
                 wms = WebMapService(url)
-                return wms
             except Exception as e:
-                # QMessageBox.information(None, "DEBUG:", str(e))
-                pass
+                QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
+                self.service_url = None
+            return wms
         else:
             try:
                 wmts = WebMapTileService(url)
-                return wmts
             except Exception as e:
-                # QMessageBox.information(None, "DEBUG:", str(e))
-                pass
+                QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
+                self.service_url = None
+            return wmts
 
     def openDlgInfo(self):
         self.dlginfo.show()
 
     def closeDlg(self):
+        self.wms_contents = None
+        self.wms = None
+        self.service_url = None
         self.dlg.search_box.clear()
         self.dlg.table_widget.setRowCount(0)
         self.dlg.table_widget.setColumnCount(0)
@@ -346,5 +352,30 @@ class BhuvanWebServices:
 
     def loadWebService(self):
         # get selected items and add to the map
-        for serv in self.getSelectedItemsFromTable():
-            pass
+        EPSG_code = '4326'
+        selectedServices = self.getSelectedItemsFromTable()
+        for selectedService in selectedServices:
+            if self.service_url is not None:
+                urlWithParams1 = 'url=' + str(self.service_url) + '&format=image/png&layers='
+                urlWithParams2 = '&styles=&crs=EPSG:' + str(EPSG_code)
+                urlWithParams = urlWithParams1 + selectedServices[selectedService].name + urlWithParams2
+                if self.wms.identification.type == 'OGC:WMS':
+                    rlayer = QgsRasterLayer(urlWithParams, selectedServices[selectedService].title,
+                                            'wms')
+                    if not rlayer.isValid():
+                        QMessageBox.information(None, "ERROR:", 'Unable to load ' +
+                                                selectedServices[selectedService].title +
+                                                ' this layer now.')
+                    else:
+                        QgsProject.instance().addMapLayer(rlayer)
+                elif self.wms.identification.type == 'OGC WMTS':
+                    rlayer = QgsRasterLayer(urlWithParams, selectedServices[selectedService].title,
+                                            'wms')
+                    if not rlayer.isValid():
+                        QMessageBox.information(None, "ERROR:", 'Unable to load ' +
+                                                selectedServices[selectedService].title +
+                                                ' this layer now.')
+                    else:
+                        QgsProject.instance().addMapLayer(rlayer)
+            else:
+                QMessageBox.information(None, "ERROR:", 'Service url is None')
