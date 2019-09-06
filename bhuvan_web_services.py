@@ -198,10 +198,18 @@ class BhuvanWebServices:
         self.run(wms)
 
     def run_4(self):
+        wms = self.loadServiceList(Service.FloodAnnualLayers.value)
+        self.run(wms)
+
+    def run_5(self):
+        wms = self.loadServiceList(Service.FloodHazard.value)
+        self.run(wms)
+
+    def run_6(self):
         wmts = self.loadServiceList(Service.BhuvanV1WMTS.value)
         self.run(wmts)
 
-    def run_5(self):
+    def run_7(self):
         wmts = self.loadServiceList(Service.BhuvanV2WMTS.value)
         self.run(wmts)
 
@@ -232,14 +240,26 @@ class BhuvanWebServices:
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
-                        text=self.tr(service_text_map[Service.BhuvanV1WMTS.value]),
+                        text=self.tr(service_text_map[Service.FloodAnnualLayers.value]),
                         callback=self.run_4,
+                        whats_this=str(Service.FloodAnnualLayers.value),
+                        parent=self.iFace.mainWindow())
+
+        self.add_action(icon_path,
+                        text=self.tr(service_text_map[Service.FloodHazard.value]),
+                        callback=self.run_5,
+                        whats_this=str(Service.FloodHazard.value),
+                        parent=self.iFace.mainWindow())
+
+        self.add_action(icon_path,
+                        text=self.tr(service_text_map[Service.BhuvanV1WMTS.value]),
+                        callback=self.run_6,
                         whats_this=str(Service.BhuvanV1WMTS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV2WMTS.value]),
-                        callback=self.run_5,
+                        callback=self.run_7,
                         whats_this=str(Service.BhuvanV2WMTS.value),
                         parent=self.iFace.mainWindow())
 
@@ -247,7 +267,7 @@ class BhuvanWebServices:
         url = service_url_map[service_type_id]
         self.service_url = url
         wms = wmts = None
-        if service_type_id <= 3:
+        if service_type_id <= 5:
             try:
                 wms = WebMapService(url)
             except Exception as e:
