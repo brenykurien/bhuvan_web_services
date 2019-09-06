@@ -6,5 +6,7 @@ class Service(IntEnum):
     GeoWebCacheWMS = 1
     BhuvanV1WMS = 2
     BhuvanV2WMS = 3
-    BhuvanV1WMTS = 4
-    BhuvanV2WMTS = 5
+    FloodAnnualLayers = 4
+    FloodHazard = 5
+    BhuvanV1WMTS = 6
+    BhuvanV2WMTS = 7
