@@ -77,16 +77,16 @@ class BhuvanWebServices:
         return QCoreApplication.translate('BhuvanWebServices', message)
 
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -352,30 +352,36 @@ class BhuvanWebServices:
 
     def loadWebService(self):
         # get selected items and add to the map
-        EPSG_code = '4326'
+        EPSG_CODE = 'EPSG:4326'
+        WMTS_TYPE = 'OGC WMTS'
         selectedServices = self.getSelectedItemsFromTable()
         for selectedService in selectedServices:
             if self.service_url is not None:
-                urlWithParams1 = 'url=' + str(self.service_url) + '&format=image/png&layers='
-                urlWithParams2 = '&styles=&crs=EPSG:' + str(EPSG_code)
-                urlWithParams = urlWithParams1 + selectedServices[selectedService].name + urlWithParams2
-                if self.wms.identification.type == 'OGC:WMS':
-                    rlayer = QgsRasterLayer(urlWithParams, selectedServices[selectedService].title,
-                                            'wms')
-                    if not rlayer.isValid():
-                        QMessageBox.information(None, "ERROR:", 'Unable to load ' +
-                                                selectedServices[selectedService].title +
-                                                ' this layer now.')
-                    else:
-                        QgsProject.instance().addMapLayer(rlayer)
-                elif self.wms.identification.type == 'OGC WMTS':
-                    rlayer = QgsRasterLayer(urlWithParams, selectedServices[selectedService].title,
-                                            'wms')
-                    if not rlayer.isValid():
-                        QMessageBox.information(None, "ERROR:", 'Unable to load ' +
-                                                selectedServices[selectedService].title +
-                                                ' this layer now.')
-                    else:
-                        QgsProject.instance().addMapLayer(rlayer)
+                layer_name = selectedServices[selectedService].name
+                url = 'contextualWMSLegend=0'
+                if hasattr(self.wms[layer_name], 'crsOptions'):
+                    if len(self.wms[layer_name].crsOptions) > 0:
+                        if EPSG_CODE in self.wms[layer_name].crsOptions:
+                            url += '&crs=' + EPSG_CODE
+                            if self.wms.identification.type == WMTS_TYPE:
+                                    url += '&tileMatrixSet=' + EPSG_CODE
+                        else:
+                            url += '&crs=' + self.wms[layer_name].crsOptions[0]
+                            if self.wms.identification.type == WMTS_TYPE:
+                                    url += '&tileMatrixSet=' + self.wms[layer_name].crsOptions[0]
+                else:
+                    url += '&crs=' + EPSG_CODE
+                    if self.wms.identification.type == WMTS_TYPE:
+                        url += '&tileMatrixSet=' + EPSG_CODE
+                url += '&dpiMode=7&featureCount=10&format=image/png&styles' + \
+                       '&layers=' + layer_name + \
+                       '&url=' + str(self.service_url)
+                rlayer = QgsRasterLayer(url, selectedServices[selectedService].title, 'wms')
+                if not rlayer.isValid():
+                    QMessageBox.information(None, "ERROR:", 'Unable to load ' +
+                                            selectedServices[selectedService].title +
+                                            ' this layer now.')
+                else:
+                    QgsProject.instance().addMapLayer(rlayer)
             else:
                 QMessageBox.information(None, "ERROR:", 'Service url is None')
