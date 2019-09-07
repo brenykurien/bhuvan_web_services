@@ -25,6 +25,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, pyqtSigna
 from qgis.PyQt.QtGui import QIcon, QTextCursor
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView, QProgressBar
 from qgis._core import QgsRasterLayer, QgsProject
+
 # Initialize Qt resources from file resources.py
 from .info_dialog import InfoDialog
 from .common.mappings.ServiceUrlMap import service_url_map
@@ -63,9 +64,7 @@ class BhuvanWebServices:
 
         self.dlg = BhuvanWebServicesDialog()
         self.dlginfo = InfoDialog()
-        self.wms_contents = None
-        self.wms = None
-        self.service_url = None
+        self.generatedService = None
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Bhuvan Web Services')
@@ -174,50 +173,50 @@ class BhuvanWebServices:
                 action)
             self.iFace.removeToolBarIcon(action)
 
-    def run(self, wms):
-        if wms is not None:
-            self.wms = wms
-            self.wms_contents = wms.contents
-            self.fill_table(wms.contents)
+    def run(self):
+        if self.generatedService.web_map_service is not None:
+            self.dlg.search_box.clear()
+            self.fill_table(self.generatedService.web_map_service.contents)
             self.dlg.show()
             result = self.dlg.exec_()
             if result:
                 pass
 
     def run_0(self):
-        wms = self.loadServiceList(Service.LULC205KDataset.value)
-        self.run(wms)
+        self.loadServiceList(Service.LULC205KDataset.value)
+        self.run()
 
     def run_1(self):
-        wms = self.loadServiceList(Service.GeoWebCacheWMS.value)
-        self.run(wms)
+        self.loadServiceList(Service.GeoWebCacheWMS.value)
+        self.run()
 
     def run_2(self):
-        wms = self.loadServiceList(Service.BhuvanV1WMS.value)
-        self.run(wms)
+        self.loadServiceList(Service.BhuvanV1WMS.value)
+        self.run()
 
     def run_3(self):
-        wms = self.loadServiceList(Service.BhuvanV2WMS.value)
-        self.run(wms)
+        self.loadServiceList(Service.BhuvanV2WMS.value)
+        self.run()
 
     def run_4(self):
-        wms = self.loadServiceList(Service.FloodAnnualLayers.value)
-        self.run(wms)
+        self.loadServiceList(Service.FloodAnnualLayers.value)
+        self.run()
 
     def run_5(self):
-        wms = self.loadServiceList(Service.FloodHazard.value)
-        self.run(wms)
+        self.loadServiceList(Service.FloodHazard.value)
+        self.run()
 
     def run_6(self):
-        wmts = self.loadServiceList(Service.BhuvanV1WMTS.value)
-        self.run(wmts)
+        self.loadServiceList(Service.BhuvanV1WMTS.value)
+        self.run()
 
     def run_7(self):
-        wmts = self.loadServiceList(Service.BhuvanV2WMTS.value)
-        self.run(wmts)
+        self.loadServiceList(Service.BhuvanV2WMTS.value)
+        self.run()
 
     def add_all_action(self):
         icon_path = ':/plugins/bhuvan_web_services/icon.png'
+
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.LULC205KDataset.value]),
                         callback=self.run_0,
@@ -266,32 +265,27 @@ class BhuvanWebServices:
                         whats_this=str(Service.BhuvanV2WMTS.value),
                         parent=self.iFace.mainWindow())
 
-    def loadServiceList(self, service_type_id: int):
-        url = service_url_map[service_type_id]
-        self.service_url = url
-        wms = wmts = None
-        if service_type_map[service_type_id] == ServiceType.WebMapService.value:
+    def loadServiceList(self, service_id: int):
+        self.generatedService = WebMapServiceClass(service_id)
+        url = self.generatedService.service_url
+        if self.generatedService.service_type == ServiceType.WebMapService.value:
             try:
                 wms = WebMapService(url)
+                self.generatedService.setWebMapService(wms)
             except Exception as e:
                 QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
-                self.service_url = None
-            return wms
-        elif service_type_map[service_type_id] == ServiceType.WebMapTileService.value:
+        elif self.generatedService.service_type == ServiceType.WebMapTileService.value:
             try:
                 wmts = WebMapTileService(url)
+                self.generatedService.setWebMapService(wmts)
             except Exception as e:
                 QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
-                self.service_url = None
-            return wmts
 
     def openDlgInfo(self):
         self.dlginfo.show()
 
     def closeDlg(self):
-        self.wms_contents = None
-        self.wms = None
-        self.service_url = None
+        self.generatedService = None
         self.dlg.search_box.clear()
         self.dlg.table_widget.setRowCount(0)
         self.dlg.table_widget.setColumnCount(0)
@@ -338,10 +332,11 @@ class BhuvanWebServices:
         criteria = self.dlg.search_box.text()
         criteria = criteria.lower()
         wms_filtered_contents = OrderedDict()
-        for content in self.wms_contents:
-            name = self.wms_contents[content].name
+        contents = self.generatedService.web_map_service.contents
+        for content in contents:
+            name = contents[content].name
             if criteria in name:
-                wms_filtered_contents[content] = self.wms_contents[content]
+                wms_filtered_contents[content] = contents[content]
         self.fill_table(wms_filtered_contents)
 
     def getSelectedItemsFromTable(self):
@@ -354,11 +349,12 @@ class BhuvanWebServices:
                 rowNames.append(name)
 
         selectedServices = OrderedDict()
+        contents = self.generatedService.web_map_service.contents
         for rowName in rowNames:
-            for content in self.wms_contents:
-                name_itr = self.wms_contents[content].name
+            for content in contents:
+                name_itr = contents[content].name
                 if name_itr == rowName:
-                    selectedServices[content] = self.wms_contents[content]
+                    selectedServices[content] = contents[content]
 
         return selectedServices
 
@@ -375,30 +371,30 @@ class BhuvanWebServices:
 
     def loadWebService(self):
         # get selected items and add to the map
-        EPSG_CODE = 'EPSG:4326'
-        WMTS_TYPE = 'OGC WMTS'
+        EPSG_CODE_4326 = 'EPSG:4326'
         selectedServices = self.getSelectedItemsFromTable()
+        web_map_service = self.generatedService.web_map_service
         for selectedService in selectedServices:
-            if self.service_url is not None:
+            if self.generatedService.service_url is not None:
                 layer_name = selectedServices[selectedService].name
                 url = 'contextualWMSLegend=0'
-                if hasattr(self.wms[layer_name], 'crsOptions'):
-                    if len(self.wms[layer_name].crsOptions) > 0:
-                        if EPSG_CODE in self.wms[layer_name].crsOptions:
-                            url += '&crs=' + EPSG_CODE
-                            if self.wms.identification.type == WMTS_TYPE:
-                                    url += '&tileMatrixSet=' + EPSG_CODE
+                if hasattr(web_map_service[layer_name], 'crsOptions'):
+                    if len(web_map_service[layer_name].crsOptions) > 0:
+                        if EPSG_CODE_4326 in web_map_service[layer_name].crsOptions:
+                            url += '&crs=' + EPSG_CODE_4326
+                            if self.generatedService.service_type == ServiceType.WebMapTileService.value:
+                                    url += '&tileMatrixSet=' + EPSG_CODE_4326
                         else:
-                            url += '&crs=' + self.wms[layer_name].crsOptions[0]
-                            if self.wms.identification.type == WMTS_TYPE:
-                                    url += '&tileMatrixSet=' + self.wms[layer_name].crsOptions[0]
+                            url += '&crs=' + web_map_service[layer_name].crsOptions[0]
+                            if self.generatedService.service_type == ServiceType.WebMapTileService.value:
+                                    url += '&tileMatrixSet=' + web_map_service[layer_name].crsOptions[0]
                 else:
-                    url += '&crs=' + EPSG_CODE
-                    if self.wms.identification.type == WMTS_TYPE:
-                        url += '&tileMatrixSet=' + EPSG_CODE
+                    url += '&crs=' + EPSG_CODE_4326
+                    if self.generatedService.service_type == ServiceType.WebMapTileService.value:
+                        url += '&tileMatrixSet=' + EPSG_CODE_4326
                 url += '&dpiMode=7&featureCount=10&format=image/png&styles' + \
                        '&layers=' + layer_name + \
-                       '&url=' + str(self.service_url)
+                       '&url=' + str(self.generatedService.service_url)
                 rlayer = QgsRasterLayer(url, selectedServices[selectedService].title, 'wms')
                 if not rlayer.isValid():
                     QMessageBox.information(None, "ERROR:", 'Unable to load ' +
@@ -408,3 +404,16 @@ class BhuvanWebServices:
                     QgsProject.instance().addMapLayer(rlayer)
             else:
                 QMessageBox.information(None, "ERROR:", 'Service url is None')
+
+
+class WebMapServiceClass:
+
+    def __init__(self, service_id):
+        self.service_id = service_id
+        self.service_type = service_type_map[service_id]
+        self.service_text = service_text_map[service_id]
+        self.service_url = service_url_map[service_id]
+        self.web_map_service = None
+
+    def setWebMapService(self, map_service):
+        self.web_map_service = map_service
