@@ -29,7 +29,10 @@ from qgis._core import QgsRasterLayer, QgsProject
 from .info_dialog import InfoDialog
 from .common.mappings.ServiceUrlMap import service_url_map
 from .common.enums.Service import Service
+from .common.enums.ServiceType import ServiceType
 from .common.mappings.ServiceTextMap import service_text_map
+from .common.mappings.ServiceTypeMap import service_type_map
+
 from .resources import *
 # Import the code for the dialog
 from .bhuvan_web_services_dialog import BhuvanWebServicesDialog
@@ -267,14 +270,14 @@ class BhuvanWebServices:
         url = service_url_map[service_type_id]
         self.service_url = url
         wms = wmts = None
-        if service_type_id <= 5:
+        if service_type_map[service_type_id] == ServiceType.WebMapService.value:
             try:
                 wms = WebMapService(url)
             except Exception as e:
                 QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
                 self.service_url = None
             return wms
-        else:
+        elif service_type_map[service_type_id] == ServiceType.WebMapTileService.value:
             try:
                 wmts = WebMapTileService(url)
             except Exception as e:
