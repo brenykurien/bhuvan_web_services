@@ -65,6 +65,8 @@ class BhuvanWebServices:
         self.dlg = BhuvanWebServicesDialog()
         self.dlginfo = InfoDialog()
         self.generatedService = None
+        self.bar = QProgressBar()
+        self.bar.setRange(0, 0)
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Bhuvan Web Services')
@@ -268,6 +270,7 @@ class BhuvanWebServices:
     def loadServiceList(self, service_id: int):
         self.generatedService = WebMapServiceClass(service_id)
         url = self.generatedService.service_url
+        self.bar.show()
         if self.generatedService.service_type == ServiceType.WebMapService.value:
             try:
                 wms = WebMapService(url)
@@ -280,6 +283,7 @@ class BhuvanWebServices:
                 self.generatedService.setWebMapService(wmts)
             except Exception as e:
                 QMessageBox.information(None, "ERROR:", 'Unable to load this service now.' + str(e))
+        self.bar.close()
 
     def openDlgInfo(self):
         self.dlginfo.show()
@@ -371,6 +375,7 @@ class BhuvanWebServices:
 
     def loadWebService(self):
         # get selected items and add to the map
+        self.bar.show()
         EPSG_CODE_4326 = 'EPSG:4326'
         selectedServices = self.getSelectedItemsFromTable()
         web_map_service = self.generatedService.web_map_service
@@ -404,6 +409,7 @@ class BhuvanWebServices:
                     QgsProject.instance().addMapLayer(rlayer)
             else:
                 QMessageBox.information(None, "ERROR:", 'Service url is None')
+        self.bar.close()
 
 
 class WebMapServiceClass:
