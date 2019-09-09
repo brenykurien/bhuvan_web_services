@@ -12,7 +12,7 @@ email=brenykurien007@gmail.com
 
 about=This plugin allows you to load geospatial web map services from Bhuvan ISRO's Geoportal
 
-tracker=https://github.com/brenykurien/bhuvan_web_services
+tracker=https://github.com/brenykurien/bhuvan_web_services/issues
 repository=https://github.com/brenykurien/bhuvan_web_services
 # End of mandatory metadata
 
@@ -25,7 +25,7 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://github.com/brenykurien/bhuvan_web_services
 category=Web
 icon=icon.png
 # experimental flag
