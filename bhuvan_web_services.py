@@ -23,7 +23,7 @@
 """
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, pyqtSignal, QEvent
 from qgis.PyQt.QtGui import QIcon, QTextCursor
-from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView, QProgressBar
+from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView, QProgressBar, QProgressDialog
 from qgis._core import QgsRasterLayer, QgsProject
 
 # Initialize Qt resources from file resources.py
@@ -67,6 +67,8 @@ class BhuvanWebServices:
         self.generatedService = None
         self.bar = QProgressBar()
         self.bar.setRange(0, 0)
+        self.bar.setGeometry(950, 500, 200, 25)
+
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr(u'&Bhuvan Web Services')
@@ -189,30 +191,18 @@ class BhuvanWebServices:
         self.run()
 
     def run_1(self):
-        self.loadServiceList(Service.GeoWebCacheWMS.value)
-        self.run()
-
-    def run_2(self):
         self.loadServiceList(Service.BhuvanV1WMS.value)
         self.run()
 
-    def run_3(self):
+    def run_2(self):
         self.loadServiceList(Service.BhuvanV2WMS.value)
         self.run()
 
-    def run_4(self):
-        self.loadServiceList(Service.FloodAnnualLayers.value)
-        self.run()
-
-    def run_5(self):
-        self.loadServiceList(Service.FloodHazard.value)
-        self.run()
-
-    def run_6(self):
+    def run_3(self):
         self.loadServiceList(Service.BhuvanV1WMTS.value)
         self.run()
 
-    def run_7(self):
+    def run_4(self):
         self.loadServiceList(Service.BhuvanV2WMTS.value)
         self.run()
 
@@ -226,44 +216,26 @@ class BhuvanWebServices:
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
-                        text=self.tr(service_text_map[Service.GeoWebCacheWMS.value]),
-                        callback=self.run_1,
-                        whats_this=str(Service.GeoWebCacheWMS.value),
-                        parent=self.iFace.mainWindow())
-
-        self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV1WMS.value]),
-                        callback=self.run_2,
+                        callback=self.run_1,
                         whats_this=str(Service.BhuvanV1WMS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV2WMS.value]),
-                        callback=self.run_3,
+                        callback=self.run_2,
                         whats_this=str(Service.BhuvanV2WMS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
-                        text=self.tr(service_text_map[Service.FloodAnnualLayers.value]),
-                        callback=self.run_4,
-                        whats_this=str(Service.FloodAnnualLayers.value),
-                        parent=self.iFace.mainWindow())
-
-        self.add_action(icon_path,
-                        text=self.tr(service_text_map[Service.FloodHazard.value]),
-                        callback=self.run_5,
-                        whats_this=str(Service.FloodHazard.value),
-                        parent=self.iFace.mainWindow())
-
-        self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV1WMTS.value]),
-                        callback=self.run_6,
+                        callback=self.run_3,
                         whats_this=str(Service.BhuvanV1WMTS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV2WMTS.value]),
-                        callback=self.run_7,
+                        callback=self.run_4,
                         whats_this=str(Service.BhuvanV2WMTS.value),
                         parent=self.iFace.mainWindow())
 
