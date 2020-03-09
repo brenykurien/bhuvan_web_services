@@ -6,7 +6,7 @@
 name=Bhuvan Web Services
 qgisMinimumVersion=3.0
 description=This plugin allows you to load geospatial web map services from Bhuvan ISRO's Geoportal
-version=0.2
+version=0.3
 author=Breny Kurien
 email=brenykurien007@gmail.com
 
@@ -21,6 +21,7 @@ repository=https://github.com/brenykurien/bhuvan_web_services
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 # changelog=
+        0.3:  Added Bhuvan Panchayat and Info message on service loading.
         0.2:  Removed unresponsive urls.
         0.1:  Initial push.
 

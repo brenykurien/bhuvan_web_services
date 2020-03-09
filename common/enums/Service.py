@@ -2,8 +2,9 @@ from enum import IntEnum
 
 
 class Service(IntEnum):
-    LULC205KDataset = 0
-    BhuvanV1WMS = 1
-    BhuvanV2WMS = 2
-    BhuvanV1WMTS = 3
-    BhuvanV2WMTS = 4
+    BhuvanPanchayat = 0
+    LULC205KDataset = 1
+    BhuvanV1WMS = 2
+    BhuvanV2WMS = 3
+    BhuvanV1WMTS = 4
+    BhuvanV2WMTS = 5

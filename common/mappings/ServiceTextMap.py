@@ -1,6 +1,7 @@
 from ..enums.Service import Service
 
 service_text_map = {
+    Service.BhuvanPanchayat.value: 'Load Bhuvan Panchayat',
     Service.LULC205KDataset.value: 'Load LULC205K Dataset',
     Service.BhuvanV1WMS.value: 'Load Bhuvan V1 WMS',
     Service.BhuvanV2WMS.value: 'Load Bhuvan V2 WMS',

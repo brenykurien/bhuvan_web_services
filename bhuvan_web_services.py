@@ -24,7 +24,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, pyqtSignal, QEvent
 from qgis.PyQt.QtGui import QIcon, QTextCursor
 from qgis.PyQt.QtWidgets import QAction, QMessageBox, QTableWidgetItem, QHeaderView, QAbstractItemView, QProgressBar, QProgressDialog
-from qgis._core import QgsRasterLayer, QgsProject
+from qgis._core import QgsRasterLayer, QgsProject, Qgis
 
 # Initialize Qt resources from file resources.py
 from .info_dialog import InfoDialog
@@ -187,22 +187,26 @@ class BhuvanWebServices:
                 pass
 
     def run_0(self):
-        self.loadServiceList(Service.LULC205KDataset.value)
+        self.loadServiceList(Service.BhuvanPanchayat.value)
         self.run()
 
     def run_1(self):
-        self.loadServiceList(Service.BhuvanV1WMS.value)
+        self.loadServiceList(Service.LULC205KDataset.value)
         self.run()
 
     def run_2(self):
-        self.loadServiceList(Service.BhuvanV2WMS.value)
+        self.loadServiceList(Service.BhuvanV1WMS.value)
         self.run()
 
     def run_3(self):
-        self.loadServiceList(Service.BhuvanV1WMTS.value)
+        self.loadServiceList(Service.BhuvanV2WMS.value)
         self.run()
 
     def run_4(self):
+        self.loadServiceList(Service.BhuvanV1WMTS.value)
+        self.run()
+
+    def run_5(self):
         self.loadServiceList(Service.BhuvanV2WMTS.value)
         self.run()
 
@@ -210,39 +214,48 @@ class BhuvanWebServices:
         icon_path = ':/plugins/bhuvan_web_services/icon.png'
 
         self.add_action(icon_path,
-                        text=self.tr(service_text_map[Service.LULC205KDataset.value]),
+                        text=self.tr(service_text_map[Service.BhuvanPanchayat.value]),
                         callback=self.run_0,
+                        whats_this=str(Service.BhuvanPanchayat.value),
+                        parent=self.iFace.mainWindow())
+
+        self.add_action(icon_path,
+                        text=self.tr(service_text_map[Service.LULC205KDataset.value]),
+                        callback=self.run_1,
                         whats_this=str(Service.LULC205KDataset.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV1WMS.value]),
-                        callback=self.run_1,
+                        callback=self.run_2,
                         whats_this=str(Service.BhuvanV1WMS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV2WMS.value]),
-                        callback=self.run_2,
+                        callback=self.run_3,
                         whats_this=str(Service.BhuvanV2WMS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV1WMTS.value]),
-                        callback=self.run_3,
+                        callback=self.run_4,
                         whats_this=str(Service.BhuvanV1WMTS.value),
                         parent=self.iFace.mainWindow())
 
         self.add_action(icon_path,
                         text=self.tr(service_text_map[Service.BhuvanV2WMTS.value]),
-                        callback=self.run_4,
+                        callback=self.run_5,
                         whats_this=str(Service.BhuvanV2WMTS.value),
                         parent=self.iFace.mainWindow())
 
+
     def loadServiceList(self, service_id: int):
+        self.iFace.messageBar().pushMessage('Info: ', 'Please wait loading layers ... ', level=Qgis.Info)
+        self.bar.show()
+        self.iFace.mainWindow().repaint()
         self.generatedService = WebMapServiceClass(service_id)
         url = self.generatedService.service_url
-        self.bar.show()
         if self.generatedService.service_type == ServiceType.WebMapService.value:
             try:
                 wms = WebMapService(url)
